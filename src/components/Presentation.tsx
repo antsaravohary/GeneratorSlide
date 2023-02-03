@@ -1,13 +1,20 @@
 import React, { useState } from "react";
 
-function Presentation() {
+interface PropsPresenation {
+  dataHandler: any;
+  title: (title: string) => void;
+}
+function Presentation({ dataHandler, title }: PropsPresenation) {
+  const [input, setInput] = useState<string>("");
   const [toggleOne, setToggleOne] = useState<boolean>(false);
   const [toggleTwo, setToggleTwo] = useState<boolean>(false);
   return (
     <div className="w-96">
-      <p className="text-xl text-center">Presentation Generator</p>
+      <p className="text-xl text-center font-semibold">
+        Presentation Generator
+      </p>
       <div className="">
-        <p className="text-center">Do you want an introduction ?</p>
+        <p className="text-center mt-3">Do you want an introduction ?</p>
         <div className="flex p-2.5 justify-center ">
           <p>No</p>
           <div
@@ -42,34 +49,45 @@ function Presentation() {
           <p>Yes</p>
         </div>
       </div>
-      <div className="flex justify-center">
-        <div className="flex">
-          <label>Pick a template</label>
-          <select
-            id="default"
-            className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-400  dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          >
-            <option selected>Choose a country</option>
-            <option value="US">United States</option>
-            <option value="CA">Canada</option>
-            <option value="FR">France</option>
-            <option value="DE">Germany</option>
-          </select>
+      <div className="flex justify-center space-x-4">
+        <div>
+          <label className="align-middle">Pick a template</label>
         </div>
+        <select
+          id="default"
+          className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  w-auto p-2.5  dark:border-gray-600 dark:placeholder-gray-400  dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        >
+          <option defaultChecked>Choose a country</option>
+          <option value="US">United States</option>
+          <option value="CA">Canada</option>
+          <option value="FR">France</option>
+          <option value="DE">Germany</option>
+        </select>
       </div>
       <div className="  mb-6">
-        <p className="text-center">
-          <label htmlFor="default-input" className=" mb-2">
-            Submit
-          </label>
-        </p>
+        <div>
+          <p className="text-center">
+            <label htmlFor="default-input">Subject</label>
+          </p>
+        </div>
 
         <input
+          value={input}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            setInput(e.target.value);
+            title(input);
+          }}
           type="text"
           id="default-input"
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          className=" my-3 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500"
         />
-        <button className="w-96 bg-green-600 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+        <button
+          onClick={() => {
+            dataHandler();
+            setInput("");
+          }}
+          className="w-96 bg-green-600 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+        >
           Generate outline
         </button>
       </div>
