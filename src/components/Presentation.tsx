@@ -1,13 +1,26 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 interface PropsPresenation {
   dataHandler: any;
   title: (title: string) => void;
+  updateConclusion: (update: boolean) => void;
+  updateIntroduction: (update: boolean) => void;
 }
-function Presentation({ dataHandler, title }: PropsPresenation) {
+function Presentation({
+  dataHandler,
+  title,
+  updateConclusion,
+  updateIntroduction,
+}: PropsPresenation) {
   const [input, setInput] = useState<string>("");
   const [toggleOne, setToggleOne] = useState<boolean>(false);
   const [toggleTwo, setToggleTwo] = useState<boolean>(false);
+
+  // useEffect(() => {
+  //   updateIntroduction(toggleOne);
+  //   updateConclusion(toggleTwo);
+  // }, [toggleOne, toggleTwo]);
+
   return (
     <div className="w-96">
       <p className="text-xl text-center font-semibold">
@@ -21,7 +34,9 @@ function Presentation({ dataHandler, title }: PropsPresenation) {
             className={`w-12 h-6 flex items-center  rounded-full mx-3 px-1 ${
               toggleOne ? "bg-green-600" : "bg-gray-300"
             }`}
-            onClick={() => setToggleOne(!toggleOne)}
+            onClick={() => {
+              setToggleOne(!toggleOne);
+            }}
           >
             <div
               className={`bg-white w-4 h-4 rounded-full shadow-md transform ${
@@ -38,7 +53,10 @@ function Presentation({ dataHandler, title }: PropsPresenation) {
             className={`w-12 h-6 flex items-center  rounded-full mx-3 px-1 ${
               toggleTwo ? "bg-green-600" : "bg-gray-300"
             }`}
-            onClick={() => setToggleTwo(!toggleTwo)}
+            onClick={() => {
+              setToggleTwo(!toggleTwo);
+              updateConclusion(toggleTwo);
+            }}
           >
             <div
               className={`bg-white w-4 h-4 rounded-full shadow-md transform ${
@@ -57,14 +75,14 @@ function Presentation({ dataHandler, title }: PropsPresenation) {
           id="default"
           className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  w-auto p-2.5  dark:border-gray-600 dark:placeholder-gray-400  dark:focus:ring-blue-500 dark:focus:border-blue-500"
         >
-          <option defaultChecked>Choose a country</option>
+          <option defaultChecked>Pick template</option>
           <option value="US">United States</option>
           <option value="CA">Canada</option>
           <option value="FR">France</option>
           <option value="DE">Germany</option>
         </select>
       </div>
-      <div className="  mb-6">
+      <div className="mb-6">
         <div>
           <p className="text-center">
             <label htmlFor="default-input">Subject</label>
@@ -83,7 +101,7 @@ function Presentation({ dataHandler, title }: PropsPresenation) {
         />
         <button
           onClick={() => {
-            dataHandler();
+            dataHandler(toggleOne, toggleTwo);
             setInput("");
           }}
           className="w-96 bg-green-600 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
