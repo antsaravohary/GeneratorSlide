@@ -8,6 +8,7 @@ interface ResponseApi {
   createSlide: (request: any) => void;
   loading: boolean;
 }
+
 function Generator({
   response,
   intro,
