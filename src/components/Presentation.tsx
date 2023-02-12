@@ -5,12 +5,18 @@ interface PropsPresenation {
   title: (title: string) => void;
   updateConclusion: (update: boolean) => void;
   updateIntroduction: (update: boolean) => void;
+  options: Array<{ label: string; value: string }>;
+  selected: string;
+  handleSelected: (value: string) => void;
 }
 function Presentation({
   dataHandler,
   title,
   updateConclusion,
   updateIntroduction,
+  options,
+  selected,
+  handleSelected,
 }: PropsPresenation) {
   const [input, setInput] = useState<string>("");
   const [toggleOne, setToggleOne] = useState<boolean>(false);
@@ -75,15 +81,13 @@ function Presentation({
         <select
           id="default"
           className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  w-auto p-2.5  dark:border-gray-600 dark:placeholder-gray-400  dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          onChange={(e) => handleSelected(e.target.value)}
         >
-          <option defaultChecked>Pick template</option>
-          <option value="1FSl0HXV-DakETpGFo5_twMmsd_Y0s2zgkrm0aKi4gsU">Coral</option>
-          <option value="1Kqv5zPolpfJfzejZlSz1cfn6mznuZQD4ymk5bLYpC7k">Swiss</option>
-          <option value="14wzGoaUl9MaptFluU7d2wd32NXKnGV1xVy3YGD">Plum</option>
-          <option value="1P8KtuW4l_GiC50g-cwICdD9BpaO006llMNWqqiGN7-4">ModernWriter</option>
-          <option value="1rsPheFi_DJZy_87AWc_bKg0rBYrLacEtE4gF2SoZ20">Luxe</option>
-          <option value="1ExyubR_a46JNlDeWKCXywAR7U5lYC6P-oIBM8TXF2gY">Tropic</option>
-          
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
         </select>
       </div>
       <div className="mb-6">

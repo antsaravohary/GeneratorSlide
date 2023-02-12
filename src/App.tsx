@@ -11,8 +11,6 @@ const SCOPES =
 
 const clientId = client.web.client_id;
 const api_key = "AIzaSyCEf61GZDszL7PfqGvHUIeFdQkBiokqT6w";
-// import { landingRequest } from "./requests/landingRequest";
-// import { emphasisrequest } from "./requests/emphasis_request";
 
 function App() {
   const [response, setResponse] = useState<string>("");
@@ -22,14 +20,49 @@ function App() {
   const [titleSlide, setTitleSlide] = useState<string>("");
   const [GoogleAuth, setGoogleAuth] = useState<gapi.auth2.GoogleAuth>();
   const [loading, setLoading] = useState<boolean>(false);
-  const [isAuthorized, setIsAuthorized] = useState<boolean>(true);
+  const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
   const [topic1, setTopic1] = useState<string>("");
   const [topic2, setTopic2] = useState<string>("");
   const [firstContentOfTopics, setFirstContentOfTopic] = useState<string>("");
   const [secondContentOfTopics, setSecondContentOfTopic] = useState<string>("");
   const [thirdContentOfTopics, setThirdContentOfTopic] = useState<string>("");
+  const [isSelected, setIsSelected] = useState<string>(
+    "1FSl0HXV-DakETpGFo5_twMmsd_Y0s2zgkrm0aKi4gsU"
+  );
 
-  const token = "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"; // token open ai
+  const localStorageKey = "google_auth_token";
+
+  const token = "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";
+  const options = [
+    {
+      label: "Coral",
+      value: "1FSl0HXV-DakETpGFo5_twMmsd_Y0s2zgkrm0aKi4gsU",
+    },
+    {
+      label: "Swiss",
+      value: "1Kqv5zPolpfJfzejZlSz1cfn6mznuZQD4ymk5bLYpC7k",
+    },
+    {
+      label: "Paradigm",
+      value: "14wzGoaUl9MaptFluU7d2wd32NXKnGV1xVy3YGD-wSzM",
+    },
+    {
+      label: "Plum",
+      value: "1P8KtuW4l_GiC50g-cwICdD9BpaO006llMNWqqiGN7-4",
+    },
+    {
+      label: "ModernWriter",
+      value: "1rsPheFi_DJZy_87AWc_bKg0rBYrLacEtE4gF2SoZ20",
+    },
+    {
+      label: "Luxe",
+      value: "1ExyubR_a46JNlDeWKCXywAR7U5lYC6P-oIBM8TXF2gY",
+    },
+    {
+      label: "Tropic",
+      value: "1V0sRVl4cCOpcorBIlQyzn4ONHhGgZwRUBX_tV2TkMyE",
+    },
+  ]; // token open ai
 
   //ai config
   const configuration = new Configuration({
@@ -51,14 +84,28 @@ function App() {
           ],
         })
         .then(() => {
+          if (gapi.client.getToken().access_token) {
+            localStorage.setItem(
+              localStorageKey,
+              gapi.client.getToken().access_token
+            );
+          } else {
+            localStorage.setItem(localStorageKey, "");
+          }
           setGoogleAuth(gapi.auth2.getAuthInstance());
           GoogleAuth?.isSignedIn.listen(updateSigninStatus);
+        })
+        .catch((e) => {
+          console.log("error google sigining error:", e);
         });
     }
     function updateSigninStatus(isSignedIn: boolean) {
+      console.log("isSignedIn:", isSignedIn);
       if (isSignedIn) {
         setIsAuthorized(true);
+        console.log("signed");
       } else {
+        console.log("not signed");
         setIsAuthorized(false);
       }
     }
@@ -66,19 +113,35 @@ function App() {
   }, []);
 
   //ask if user is already authenticated
-  function sendAuthorizedApiRequest(requestDetails: any) {
-    if (isAuthorized) {
-      createPresentation(
-        titleSlide.replace("1.", ""),
+  async function sendAuthorizedApiRequest(requestDetails: any) {
+    const token = localStorage.getItem(localStorageKey);
+    if (token === "") {
+      console.log("Non autorisé");
+      await GoogleAuth?.signIn();
+      localStorage.setItem(
+        localStorageKey,
+        gapi.client.getToken().access_token
+      );
+      copyPresentation(
+        isSelected,
+        `${title}_${generateRandomString(5)}`,
         function (response: any) {
-          // console.log("response slide:", response);
+          //do something
         }
       );
-      // currentApiRequest = {};
     } else {
-      // console.log("Non autorisé");
-      GoogleAuth?.signIn();
+      copyPresentation(
+        isSelected,
+        `${title}_${generateRandomString(5)}`,
+        function (response: any) {
+          //do something
+        }
+      );
     }
+  }
+
+  function selected(value: string) {
+    setIsSelected(value);
   }
 
   //ai fetch data
@@ -139,7 +202,9 @@ function App() {
       setFirstContentOfTopic(response1.data.choices[0].text as string);
       setSecondContentOfTopic(response2.data.choices[0].text as string);
       setThirdContentOfTopic(response3.data.choices[0].text as string);
-    } catch (error) {}
+    } catch (error) {
+      //do something
+    }
   };
 
   const updateIntro = (update: boolean) => {
@@ -149,45 +214,6 @@ function App() {
   const updateConclusion = (update: boolean) => {
     setConclusion(update);
   };
-
-  //create presentation with google slide
-
-  function createPresentation(title: string, callback: any) {
-    try {
-      gapi.client.slides.presentations
-        .create({
-          title: title,
-        })
-        .then((response) => {
-          // console.log(
-          //   `Created presentation with ID: ${response.result.presentationId}`
-          // );
-          // console.log(response.result.masters);
-          createSlide(
-            response.result.presentationId,
-            response.result.presentationId + "index",
-            function (res: any) {
-              window.open(
-                `https://docs.google.com/presentation/d/${response.result.presentationId}/edit#slide=id.p`,
-                "_blank"
-              );
-            }
-          );
-          updatePresentationTheme(
-            response.result.presentationId,
-            response.result.masters &&
-              response.result.masters[0].pageElements &&
-              response.result.masters[0].pageElements[0].objectId
-          );
-
-          if (callback) callback(response);
-        });
-    } catch (err) {
-      // console.log("errorrrrr:", err);
-      // return;
-      //do something
-    }
-  }
 
   function getDate() {
     const date = new Date();
@@ -208,6 +234,17 @@ function App() {
 
     let month = months[date.getMonth()];
     return month + " " + date.getFullYear();
+  }
+
+  function generateRandomString(length: number) {
+    let result = "";
+    const characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
   }
 
   //https://docs.google.com/presentation/d/1LctDGvEtNrvJMV9k_9fGMvObzxGoIhKxjjbtrPD2zlk/edit#slide=id.p
@@ -260,42 +297,39 @@ function App() {
     }
   }
 
-  function updatePresentationTheme(
-    presentationId: string | undefined,
-    objectId: string | undefined
+  function copyPresentation(
+    templateId: string,
+    copyTitle: string,
+    callback: any
   ) {
-
-    gapi.client.slides.presentations
-      .batchUpdate({
-        presentationId: presentationId ? presentationId : "",
-        resource: {
-          requests: [
-            {
-              updateShapeProperties: {
-                objectId: objectId,
-                fields: "shapeBackgroundFill.solidFill.color",
-                shapeProperties: {
-                  shapeBackgroundFill: {
-                    solidFill: {
-                      color: {
-                        themeColor: "LIGHT2",
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          ],
-        },
-      })
-      .then(
-        function (response) {
-          // console.log(response.result);
-        },
-        function (error) {
-          console.error(error);
-        }
-      );
+    const request = {
+      name: copyTitle,
+    };
+    try {
+      gapi.client.drive.files
+        .copy({
+          fileId: templateId,
+          resource: request,
+          fields: "id,name,webViewLink",
+        })
+        .then(async (driveResponse) => {
+          const presentationCopyId = driveResponse.result.id;
+          if (callback) callback(presentationCopyId);
+          await createSlide(
+            presentationCopyId,
+            presentationCopyId + "index",
+            function (res: any) {}
+          );
+          console.log("create copy_presentation with id", presentationCopyId);
+          window.open(
+            `https://docs.google.com/presentation/d/${presentationCopyId}/edit#slide=id.p`,
+            "_blank"
+          );
+        });
+    } catch (err) {
+      //do something
+      return;
+    }
   }
 
   return (
@@ -305,6 +339,9 @@ function App() {
         title={setTitle}
         updateIntroduction={updateIntro}
         updateConclusion={updateConclusion}
+        options={options}
+        selected={isSelected}
+        handleSelected={selected}
       />
       <Generator
         response={response}
