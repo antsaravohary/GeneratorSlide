@@ -32,7 +32,7 @@ function App() {
 
   const localStorageKey = "google_auth_token";
 
-  const token = "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";
+  const token = "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";
   const options = [
     {
       label: "Coral",
@@ -84,7 +84,10 @@ function App() {
           ],
         })
         .then(() => {
-          if (gapi.client.getToken().access_token) {
+          if (
+            gapi.client.getToken() &&
+            gapi.client.getToken().access_token !== null
+          ) {
             localStorage.setItem(
               localStorageKey,
               gapi.client.getToken().access_token
@@ -115,7 +118,8 @@ function App() {
   //ask if user is already authenticated
   async function sendAuthorizedApiRequest(requestDetails: any) {
     const token = localStorage.getItem(localStorageKey);
-    if (token === "") {
+    console.log("token:", token);
+    if (token === "" || token === null) {
       console.log("Non autorisé");
       await GoogleAuth?.signIn();
       localStorage.setItem(
