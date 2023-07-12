@@ -114,6 +114,7 @@ function App() {
 
   //ask if user is already authenticated
   async function sendAuthorizedApiRequest(requestDetails: any) {
+    console.log("rerequestDetails", requestDetails)
     const token = localStorage.getItem(localStorageKey);
     if (token === "") {
       console.log("Non autorisé");
